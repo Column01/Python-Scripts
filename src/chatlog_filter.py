@@ -12,6 +12,7 @@ outputFile = input('What would you like the output file to be named?\nFormat: fi
 # Opens the chatlogs file
 with open(inputFile, 'r') as f:
     chatlogs = f.readlines()
+open(outputFile, 'w+').close()
 for line in chatlogs:
     # Finds all matches for the list of names provided by the user
     if re.findall(r"(?=(" + '|'.join(usernames) + r"))", line):
