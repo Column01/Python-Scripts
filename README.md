@@ -1,4 +1,4 @@
-# Chatlog-Filter
+# Chatlog-Filter DEPRECIATED
 Simple python script to filter chat logs from a text file.
 
 ## How to use:
