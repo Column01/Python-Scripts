@@ -1,7 +1,2 @@
-# Chatlog-Filter DEPRECIATED
-Simple python script to filter chat logs from a text file.
-
-## How to use:
-In command prompt/terminal `cd path/to/files`
-`python chatlog_filter.py`
-Enter user data as requested
+# Misc Python Scripts
+Repository of various python scripts I've written that I'd like to share with people

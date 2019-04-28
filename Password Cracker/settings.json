@@ -1,0 +1,8 @@
+{
+  "characterSet": "0123456789",
+  "minLength": 1,
+  "maxLength": 10,
+  "database": "true",
+  "bruteForce": "true",
+  "hash": "356a192b7913b04c54574d18c28d46e6395428ab"
+}
