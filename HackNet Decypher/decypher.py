@@ -65,8 +65,8 @@ def find_password(data):
 def ask():
     ask1 = input("Would you like to encode or decode a file (Choices are e or d): ").lower()
     if ask1 != "e" and ask1 != "d":
-        print(f'Invalid option "{ask1}". Please try again!')
-        return False
+        print(f'Invalid option "{ask1}". Please run program again!')
+        raise SystemExit
     ask2 = input('What is the name of the file you wish to encrypt/decrypt? ')
     return ask1, ask2
 
@@ -82,7 +82,9 @@ def get_file(f):
 
 MaxValue = 65534
 password = 5886
-action, infile = ask()
+userInput = ask()
+action = userInput[0]
+infile = userInput[1]
 file = get_file(infile)
 # File doesn't exist
 if file is False:
