@@ -29,65 +29,81 @@ def decrypt(data, code):
 
 
 def find_password(data):
+    print("Trying to find a valid password for provided file... ")
     ret = []
+    # Generate a blank reference header using no password
     base_header = encrypt("ENCODED", 0)
+    # Get the encrypted header
     encrypted_header = data[2].split()
     for l in range(len(encrypted_header)):
+        # Cast the chunk of the header to an integer
         encrypted_header[l] = int(encrypted_header[l])
+        # Find the password offset for each item in the header and append it to our array
         password_test = int(encrypted_header[l]) - int(str(base_header[l]))
         ret.append(str(password_test))
     for k in range(len(ret)):
+        # if the iteration of the password array is equal to the first item in the array, pass
         if ret[0] == ret[k]:
             pass
+        # if it doesn't match, quit because we could not find a password
         else:
             print("Passwords do not match!")
             quit()
+    # Get an encoded header example using the new password
     encoded_header = encrypt("ENCODED", int(ret[0]))
     for j in range(len(encoded_header)):
+        # Check if it's a valid password and if it is, return the password
         if encoded_header[j] == encrypted_header[j]:
             print("Found valid password! Attempting to decrypt file...")
             return int(ret[0])
+        # No valid password, quit program.
         else:
             print("Password not valid... Quiting program. Output: \n" + str(encoded_header) + "\n" + str(encrypted_header))
             quit()
 
 
 def ask():
-    ask1 = input("Would you like to encode or decode a file Choices: e or d: ")
+    ask1 = input("Would you like to encode or decode a file (Choices are e or d): ").lower()
     if ask1 != "e" and ask1 != "d":
-        print("Invalid option. Please try again!")
-        ask()
-    ask2 = input('What is the name of the file you wish to use? (".txt" only. Exclude file format from response): ')
+        print(f'Invalid option "{ask1}". Please try again!')
+        return False
+    ask2 = input('What is the name of the file you wish to encrypt/decrypt? ')
     return ask1, ask2
+
+
+def get_file(f):
+    try:
+        with open(f, "r") as r:
+            ofile = r.read()
+            return ofile
+    except FileNotFoundError:
+        return False
 
 
 MaxValue = 65534
 password = 5886
-test = ask()
-infile = test[1]
-
-if test[0] == "e":
+action, infile = ask()
+file = get_file(infile)
+# File doesn't exist
+if file is False:
+    print(f"File '{infile}' was not found. Did you forget to not include the file extension?"
+          f"\nRun script again and try again.")
+    raise SystemExit
+# The user wants to encrypt. Build an encrypted file.
+if action == "e":
     header = "#DEC_ENC::"
     encoded = str(encrypt("ENCODED", password)).replace(", ", " ").strip("[").strip("]") + "::"
-    source = str(encrypt("Colin's Encoder", password)).replace(", ", " ").strip("[").strip("]") + "::"
+    source = str(encrypt("Column01's Encoder. Find it on Github here: http://bit.ly/HackDecypher", password)).replace(", ", " ").strip("[").strip("]") + "::"
     infile_header = str(encrypt(infile, password)).replace(", ", " ").strip("[").strip("]") + "::"
     extension = str(encrypt(".txt", password)).replace(", ", " ").strip("[").strip("]") + "\n"
-    with open(infile + ".txt", "r") as r:
-        file = r.read()
     encoded_message = encrypt(file, password)
     output = open("encoded_output.txt", "w+")
     output.write(header + infile_header + source + encoded + extension)
     print("Writing file header and metadata...")
     output.write("".join(str(encoded_message).replace(", ", " ").strip("[").strip("]")))
     print("Writing file contents to output in encoded form...")
-
-elif test[0] == "d":
-    try:
-        with open(infile + ".txt", "r") as r:
-            file = r.read()
-    except FileNotFoundError:
-        print("Error opening file: {}. Did you type the name correct and exclude the file format?".format(infile))
-        ask()
+# the user wants to decrypt so decrypt the file they provided
+elif action == "d":
     filelist = file.strip("#DEC_ENC").replace('\n', "::").split("::")
     for item in filelist:
         try:
