@@ -88,7 +88,7 @@ infile = userInput[1]
 file = get_file(infile)
 # File doesn't exist
 if file is False:
-    print(f"File '{infile}' was not found. Did you forget to not include the file extension?"
+    print(f"File '{infile}' was not found. Did you type it correctly?"
           f"\nRun script again and try again.")
     raise SystemExit
 # The user wants to encrypt. Build an encrypted file.
