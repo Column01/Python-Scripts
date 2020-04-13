@@ -1,8 +1,11 @@
 # Anti Kick Script
 
-## How to use
+## Dependencies
+- [keyboard](https://pypi.org/project/keyboard/)
 
-- Run Script
+## How to use
+- Get dependencies
+- Run Script using `python anti_kick.py`
 - Press "S" to start the anti kick
 - Press "Q" to pause anti kick
 - Use "Ctrl+C" while paused to quit script or close the console window

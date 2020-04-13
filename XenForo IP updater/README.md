@@ -3,7 +3,13 @@ Used to update your recent IP address on the MyM forums to stop the two fac auth
 
 See [usage](#usage) for more info on how to use it.
 
+## Dependencies
+- [Requests](https://pypi.org/project/requests/)
+
 ## Usage
+BEFORE PROCEEDING:
+- Get the dependencies from above.
+
 1. Run the script using `python xenforo_ip_updater.py` to generate a blank credentials file. Please fill in the email and password for your account in that file and keep it safe!
 2. Run the script again and follow the prompts (should ask for 2 factor auth code for MyM forums)
 
