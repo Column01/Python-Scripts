@@ -51,10 +51,11 @@ class LoginUpdater:
         # Then we post the login data to the login page.
         response = self.session.post(url=self.login_url, data=self.login_payload)
         parsed_url = response.url.split("?")[0]
-        print(parsed_url)
+        # We got to the two step faze. Ask for the code
         if parsed_url == self.two_step_url:
             print("Website needs you to enter your 2fac auth details. Please type them below and press enter: ")
             two_fac_code = input("> ")
+            # Make sure the code is a number. Run this until it is a number
             while not is_number(two_fac_code):
                 print("Your two step code must be a number. Please type it again")
                 two_fac_code = input("> ")
@@ -71,15 +72,20 @@ class LoginUpdater:
                 "_xfNoRedirect": 1,
                 "_xfResponseType": "json",
             }
+            # Send the code.
             response2 = self.session.post(self.two_step_url, data=two_step_payload).json()
+            # If there is no error in the response and the redirect status is set, the login should have worked.
             if response2.get("error") is None and response2.get("_redirectStatus") is not None:
                 redirect = response2["_redirectTarget"]
                 print(f"Redirected to: {redirect}. Login should have been successful and your forum IP should be updated!")
             else:
+                # Print the response if there was an error.
                 print(f"Website Response: {response2}")
         else:
+            # Didn't get a 2factor auth URL. Probably okay in most cases but some (like MyM) require two factor on staff accounts.
             print(f"Something may have gone wrong. We expected a 2 factor auth redirect by never got one. Redirected to: {response.url}.")
-            print(f"You can try")
+            print(f"You can try to test if the IP got updated regardless of this fact (sometimes you don't need a two fac code to login.)")
+
 
 if __name__ == "__main__":
     print("Thanks for using the script!")
