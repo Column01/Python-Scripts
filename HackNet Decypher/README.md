@@ -1,5 +1,6 @@
 ## Decypher 
-Decypher can crack passwords for encrypted files as well in an EXTREMELY efficient way! Give it a go with the `encoded_output.txt` file to test it. **This May spoil parts of the game! Use at your own descretion**
+
+Decypher can crack passwords for encrypted files as well in an EXTREMELY efficient way! Give it a go with the `encoded_output.txt` file to test it. **This May spoil parts of the game! Use at your own discretion**
 
 You can also encode custom files to leave a calling card or easter egg. Currently it does not support password input but I can make it available if people want it (defeats the purpose since you can crack them so easily). 
 

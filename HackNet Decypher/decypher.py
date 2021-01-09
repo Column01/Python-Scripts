@@ -10,7 +10,7 @@ def encrypt(data, code):
         # Convert the string into the corresponding number
         val = ord(data[i])
         # Attempt to encrypt it using the algorithm found in game
-        newval = (val * 1822) + MaxValue / 2 + code
+        newval = (val * 1822) + MAX_VALUE / 2 + code
         # Append the encrypted value to a temp array
         ret.append(int(newval))
     return ret
@@ -20,7 +20,7 @@ def decrypt(data, code):
     ret = []
     for j in range(len(data)):
         # Decrypt the input using a reversed formula from the encryption
-        newval = ((MaxValue / 2 + code) - int(data[j])) / -1822
+        newval = ((MAX_VALUE / 2 + code) - int(data[j])) / -1822
         # Convert the output number to a character
         newvalstring = chr(int(newval))
         # Append it to the list
@@ -35,15 +35,15 @@ def find_password(data):
     base_header = encrypt("ENCODED", 0)
     # Get the encrypted header
     encrypted_header = data[2].split()
-    for l in range(len(encrypted_header)):
+    for i in range(len(encrypted_header)):
         # Cast the chunk of the header to an integer
-        encrypted_header[l] = int(encrypted_header[l])
+        encrypted_header[i] = int(encrypted_header[i])
         # Find the password offset for each item in the header and append it to our array
-        password_test = int(encrypted_header[l]) - int(str(base_header[l]))
+        password_test = int(encrypted_header[i]) - int(str(base_header[i]))
         ret.append(str(password_test))
-    for k in range(len(ret)):
+    for j in range(len(ret)):
         # if the iteration of the password array is equal to the first item in the array, pass
-        if ret[0] == ret[k]:
+        if ret[0] == ret[j]:
             pass
         # if it doesn't match, quit because we could not find a password
         else:
@@ -51,9 +51,9 @@ def find_password(data):
             quit()
     # Get an encoded header example using the new password
     encoded_header = encrypt("ENCODED", int(ret[0]))
-    for j in range(len(encoded_header)):
+    for k in range(len(encoded_header)):
         # Check if it's a valid password and if it is, return the password
-        if encoded_header[j] == encrypted_header[j]:
+        if encoded_header[k] == encrypted_header[k]:
             print("Found valid password! Attempting to decrypt file...")
             return int(ret[0])
         # No valid password, quit program.
@@ -63,59 +63,81 @@ def find_password(data):
 
 
 def ask():
-    ask1 = input("Would you like to encode or decode a file (Choices are e or d): ").lower()
-    if ask1 != "e" and ask1 != "d":
-        print(f'Invalid option "{ask1}". Please run program again!')
-        raise SystemExit
-    ask2 = input('What is the name of the file you wish to encrypt/decrypt? ')
+    while True:
+        ask1 = input("Would you like to encode or decode a file (Choices are e or d): ").lower()
+        if ask1 not in ["e", "d"]:
+            print(f'Invalid option "{ask1}".')
+        else:
+            break
+
+    while True:
+        ask2 = input('What is the name of the file you wish to encrypt/decrypt? ')
+        if ask2 is None or isinstance(ask2, int):
+            print("Please enter a valid input file name!")
+        else:
+            break
     return ask1, ask2
 
 
 def get_file(f):
     try:
         with open(f, "r") as r:
-            ofile = r.read()
-            return ofile
+            o_file = r.read()
+            return o_file
     except FileNotFoundError:
         return False
 
 
-MaxValue = 65534
-password = 5886
-userInput = ask()
-action = userInput[0]
-infile = userInput[1]
-file = get_file(infile)
+# Some Constants
+MAX_VALUE = 65534
+# The default "empty" password was reverse engineered using C# and a dump of the game's code.
+# the game uses "GetHashCode()" on an empty string and then it's casted to a unsigned short, which equals 5886
+PASSWORD = 5886
+
+# The header of all encoded files
+HEADER = "#DEC_ENC::"
+# The word "ENCODED" is used to determine if the password is correct in the game. Coincidentally, it can be used to find the password used to encrypt a file!
+ENCODED = str(encrypt("ENCODED", PASSWORD)).replace(", ", " ").strip("[").strip("]") + "::"
+# The source of the file is also included in the header of the files.
+SOURCE = str(encrypt("Column01's Encoder. Find it on Github here: http://bit.ly/HackDecypher", PASSWORD)).replace(", ", " ").strip("[").strip("]") + "::"
+
+# Get some input from the user and parse it
+user_input = ask()
+action = user_input[0]
+in_file = user_input[1]
+input_file = get_file(in_file)
 # File doesn't exist
-if file is False:
-    print(f"File '{infile}' was not found. Did you type it correctly?"
-          f"\nRun script again and try again.")
-    raise SystemExit
+if input_file is False:
+    print(f"File '{in_file}' was not found. Did you type it correctly?"
+          "\nRun script again and try again.")
+    exit()
+
 # The user wants to encrypt. Build an encrypted file.
 if action == "e":
-    header = "#DEC_ENC::"
-    encoded = str(encrypt("ENCODED", password)).replace(", ", " ").strip("[").strip("]") + "::"
-    source = str(encrypt("Column01's Encoder. Find it on Github here: http://bit.ly/HackDecypher", password)).replace(", ", " ").strip("[").strip("]") + "::"
-    infile_header = str(encrypt(infile, password)).replace(", ", " ").strip("[").strip("]") + "::"
-    extension = str(encrypt(".txt", password)).replace(", ", " ").strip("[").strip("]") + "\n"
-    encoded_message = encrypt(file, password)
+    # Do some encrypting of information
+    infile_header = str(encrypt(in_file, PASSWORD)).replace(", ", " ").strip("[").strip("]") + "::"
+    extension = str(encrypt(".txt", PASSWORD)).replace(", ", " ").strip("[").strip("]") + "\n"
+    encoded_message = encrypt(input_file, PASSWORD)
+    # Open an output file and write the encrypted information
     output = open("encoded_output.txt", "w+")
-    output.write(header + infile_header + source + encoded + extension)
     print("Writing file header and metadata...")
-    output.write("".join(str(encoded_message).replace(", ", " ").strip("[").strip("]")))
+    output.write(HEADER + infile_header + SOURCE + ENCODED + extension)
     print("Writing file contents to output in encoded form...")
-# the user wants to decrypt so decrypt the file they provided
+    output.write("".join(str(encoded_message).replace(", ", " ").strip("[").strip("]")))
+    
+# The user wants to decrypt so decrypt the file they provided
 elif action == "d":
-    filelist = file.strip("#DEC_ENC").replace('\n', "::").split("::")
-    for item in filelist:
-        try:
-            filelist.remove('')
-        except ValueError:
-            pass
-    solved_password = find_password(filelist)
-    file_note = decrypt(filelist[0].split(), password)
-    file_source = decrypt(filelist[1].split(), password)
-    file_contents = decrypt(filelist[4].split(), solved_password)
-    output = open("output.txt", "w+")
+    # Conditon the encrypted file and split the input file by it's delimter (::)
+    temp_file_list = input_file.strip("#DEC_ENC").replace('\n', "::").split("::")
+    # Remove empty list items
+    file_list = filter(None, temp_file_list)
+    # Find the password
+    solved_password = find_password(file_list)
+    # Decode the output (Some is encrypted with the "empty" password)
+    file_note = decrypt(file_list[0].split(), PASSWORD)
+    file_source = decrypt(file_list[1].split(), PASSWORD)
+    file_contents = decrypt(file_list[4].split(), solved_password)
+    # Open the output file and write the decrypyed information
+    output = open("decrypted_output.txt", "w+")
     output.write("".join(file_note) + "\n" + "".join(file_source) + "\n" + "".join(file_contents))
-    print("Output written to file: output.txt")
+    print("Output written to file: decrypted_output.txt")
